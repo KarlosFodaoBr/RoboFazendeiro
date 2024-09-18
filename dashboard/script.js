@@ -16,9 +16,7 @@ function AtualizaData() {
 }
 
 let dados = AtualizaData();
-var chuvas = [];
-var umidades = [];
-var datas = [];
+
 /*
 // Percorre o array 'dados_segundos' e extrai os valores
 dados.dados_segundos.forEach(function(item) {
@@ -49,14 +47,19 @@ let PegaOsDadosDeHj = {
             "medias_diarias": []
         };
 
-        let ContDiario = 0
-
-        dados.dados_segundos.forEach(function (item) {
-            if (PegaOsDadosDeHj.VerificaSeEHj(item.Data)) {
-                ContDiario++;
-                dadosHoje.dados_segundos.push(item);
-            }
-        })
+        let ContDiario = dados.dados_segundos.some(item => PegaOsDadosDeHj.VerificaSeEHj(item.Data));
+        
+        if(ContDiario){
+            dados.dados_segundos.forEach(function (item) {
+                if (PegaOsDadosDeHj.VerificaSeEHj(item.Data)) {
+                    dadosHoje.dados_segundos.push(item);
+                }
+            })
+        }else{
+            dados.dados_segundos.forEach(function (item) {
+                    dadosHoje.dados_segundos.push(item);
+            })
+        }
         /*
         dados.medias_diarias.forEach(function(item) {
             if (Utils.isHoje(item.Data)) {
@@ -67,18 +70,27 @@ let PegaOsDadosDeHj = {
         return dadosHoje;
     }
 }
-
-PegaOsDadosDeHj.filtrarPorHoje(dados).dados_segundos.forEach(function (item) {
-    chuvas.push(converteChuva(item.Chuva));
-    umidades.push(item.Umidade);
-    datas.push(item.Data);
-});
+let DadosDeHoje = {
+    chuvas: [],
+    umidades: [],
+    datas: []
+}
 
 function LimitarTamanhoObj(Arr, Tam){
     return Arr.slice(0,Tam) 
 }
+function DadosDeHojeUmPorUmLimitado(Tam) {
+        DadosDeHoje.chuvas = [];
+        DadosDeHoje.umidades = [];
+        DadosDeHoje.datas = [];
+    LimitarTamanhoObj(PegaOsDadosDeHj.filtrarPorHoje(dados).dados_segundos,Tam).forEach(function (item) {
+        DadosDeHoje.chuvas.push(converteChuva(item.Chuva));
+        DadosDeHoje.umidades.push(item.Umidade);
+        DadosDeHoje.datas.push(item.Data);
+    });
+  }
 
-console.log(LimitarTamanhoObj(dados.dados_segundos,20))
+  DadosDeHojeUmPorUmLimitado()  
 
 let MMC = 5;
 TabelaUltimosLançamentos()
