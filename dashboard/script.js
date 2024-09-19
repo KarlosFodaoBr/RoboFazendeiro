@@ -5,10 +5,10 @@ function AtualizaData() {
         method: 'GET',
         dataType: 'json',
         async: false, // Torna a chamada síncrona
-        success: function (response) {
+        success: function(response) {
             data = response;
         },
-        error: function (xhr, status, error) {
+        error: function(xhr, status, error) {
             console.error('Error fetching data:', status, error);
         }
     });
@@ -35,29 +35,29 @@ console.log(dados);
 
 
 let PegaOsDadosDeHj = {
-    VerificaSeEHj: function (DataVerificar) {
+    VerificaSeEHj: function(DataVerificar) {
         let partesDataDia = DataVerificar.split(" ");
         let partesData = partesDataDia[0].split("-");
         let dataFormatada = partesData[1] + "/" + partesData[2] + "/" + partesData[0];
         return new Date().toDateString() === new Date(dataFormatada).toDateString();
     },
-    filtrarPorHoje: function (dados) {
+    filtrarPorHoje: function(dados) {
         let dadosHoje = {
             "dados_segundos": [],
             "medias_diarias": []
         };
 
         let ContDiario = dados.dados_segundos.some(item => PegaOsDadosDeHj.VerificaSeEHj(item.Data));
-        
-        if(ContDiario){
-            dados.dados_segundos.forEach(function (item) {
+
+        if (ContDiario) {
+            dados.dados_segundos.forEach(function(item) {
                 if (PegaOsDadosDeHj.VerificaSeEHj(item.Data)) {
                     dadosHoje.dados_segundos.push(item);
                 }
             })
-        }else{
-            dados.dados_segundos.forEach(function (item) {
-                    dadosHoje.dados_segundos.push(item);
+        } else {
+            dados.dados_segundos.forEach(function(item) {
+                dadosHoje.dados_segundos.push(item);
             })
         }
         /*
@@ -76,34 +76,41 @@ let DadosDeHoje = {
     datas: []
 }
 
-function LimitarTamanhoObj(Arr, Tam){
-    return Arr.slice(0,Tam) 
+function LimitarTamanhoObj(Arr, Tam) {
+    return Arr.slice(0, Tam)
 }
-function DadosDeHojeUmPorUmLimitado(Tam) {
-        DadosDeHoje.chuvas = [];
-        DadosDeHoje.umidades = [];
-        DadosDeHoje.datas = [];
-    LimitarTamanhoObj(PegaOsDadosDeHj.filtrarPorHoje(dados).dados_segundos,Tam).forEach(function (item) {
-        DadosDeHoje.chuvas.push(converteChuva(item.Chuva));
-        DadosDeHoje.umidades.push(item.Umidade);
-        DadosDeHoje.datas.push(item.Data);
-    });
-  }
 
-  DadosDeHojeUmPorUmLimitado()  
+function DadosDeHojeUmPorUmLimitado(Tam = 0, PegarACada = 1) {
+
+    DadosDeHoje.chuvas = [];
+    DadosDeHoje.umidades = [];
+    DadosDeHoje.datas = [];
+
+    LimitarTamanhoObj(PegaOsDadosDeHj.filtrarPorHoje(dados).dados_segundos, Tam).forEach((item, index) => {
+        if (index % PegarACada === 0) {
+            DadosDeHoje.chuvas.push(converteChuva(item.Chuva));
+            DadosDeHoje.umidades.push(item.Umidade);
+            DadosDeHoje.datas.push(item.Data);
+        }
+    });
+
+}
+
+DadosDeHojeUmPorUmLimitado(10, 2)
 
 let MMC = 5;
 TabelaUltimosLançamentos()
-function TabelaUltimosLançamentos(){
-    MMC+=5;
+
+function TabelaUltimosLançamentos() {
+    MMC += 5;
     $('#UltimosLançamentosTBody').html('')
     $('#UltimosLançamentosTFoot').html('')
-    LimitarTamanhoObj(dados.dados_segundos,MMC).forEach((e)=>{
+    LimitarTamanhoObj(dados.dados_segundos, MMC).forEach((e) => {
         $('#UltimosLançamentosTBody').append(`
                             <tr>
                                 <th scope="row">${e.ID}</th>
                                 <td>${e.Data}</td>
-                                <td>${e.Umidade}</td>
+                                <td>${e.Umidade}%</td>
                                 <td>${e.Chuva}</td>
                             </tr>
         `);
@@ -170,17 +177,17 @@ Chart.register(backgroundPlugin);
 const dataLine = {
     type: "line",
     data: {
-        labels: ['28/06/2024', '28/06/2024', '28/06/2024', '28/06/2024', '28/06/2024', '28/06/2024', '28/06/2024', '28/06/2024', '28/06/2024', '28/06/2024',],
+        labels: DadosDeHoje.datas,
         datasets: [{
             label: "Umidade",
-            data: ['2', '16', '22', '46', '34', '55', '85', '26', 22, 17],
+            data: DadosDeHoje.umidades,
             borderColor: "rgb(1, 151, 252)",
             backgroundColor: "rgb(34, 0, 255)",
             fill: false,
             cubicInterpolationMode: 'monotone', // Adiciona suavização
         }, {
             label: "Chuva",
-            data: [10, 0, 0, 10, 0, 10, 10, 10, 0, 0],
+            data: DadosDeHoje.chuvas,
             borderColor: "rgb(34, 159, 53)",
             backgroundColor: "rgb(24, 79, 11)",
             fill: false,
