@@ -33,6 +33,8 @@ function converteChuva(valor) {
 // Exemplo de uso dos arrays criados
 console.log(dados);
 
+var ContDiario;
+var ultimoDiaComDados;
 
 let PegaOsDadosDeHj = {
     VerificaSeEHj: function(DataVerificar) {
@@ -44,10 +46,11 @@ let PegaOsDadosDeHj = {
     filtrarPorHoje: function(dados) {
         let dadosHoje = {
             "dados_segundos": [],
-            "medias_diarias": []
+            "medias_diarias": [],
+            UltDiaCDados: null
         };
 
-        let ContDiario = dados.dados_segundos.some(item => PegaOsDadosDeHj.VerificaSeEHj(item.Data));
+        ContDiario = dados.dados_segundos.some(item => PegaOsDadosDeHj.VerificaSeEHj(item.Data));
 
         if (ContDiario) {
             dados.dados_segundos.forEach(function(item) {
@@ -60,6 +63,7 @@ let PegaOsDadosDeHj = {
                 dadosHoje.dados_segundos.push(item);
             })
         }
+        dadosHoje.UltDiaCDados = dadosHoje.dados_segundos[dados.dados_segundos.length-1].Data
         /*
         dados.medias_diarias.forEach(function(item) {
             if (Utils.isHoje(item.Data)) {
@@ -76,27 +80,44 @@ let DadosDeHoje = {
     datas: []
 }
 
+
 function LimitarTamanhoObj(Arr, Tam) {
     return Arr.slice(0, Tam)
 }
-
+function dataFormatadaSeparada(DataVerificar) {
+    return DataVerificar.split(" ");
+}
+function dataFormatadaSeparadaHora(DataVerificar) {
+    return DataVerificar.split(':');
+}
 function DadosDeHojeUmPorUmLimitado(Tam = 0, PegarACada = 1) {
 
     DadosDeHoje.chuvas = [];
     DadosDeHoje.umidades = [];
     DadosDeHoje.datas = [];
 
+    function adicionarUmaHora(dataString, Add) {
+        let data = new Date(dataString);
+        data.setHours(data.getHours() + Add);
+        return data.toISOString().replace('T', ' ').split('.')[0]; // Formata de volta para o padrão 'YYYY-MM-DD HH:MM:SS'
+    }
+
+    let horasSalvas  = new Set();
     LimitarTamanhoObj(PegaOsDadosDeHj.filtrarPorHoje(dados).dados_segundos, Tam).forEach((item, index) => {
-        if (index % PegarACada === 0) {
+    let HoraItem = dataFormatadaSeparadaHora(dataFormatadaSeparada(item.Data)[1])[0]
+        if(!horasSalvas.has(HoraItem)){
             DadosDeHoje.chuvas.push(converteChuva(item.Chuva));
             DadosDeHoje.umidades.push(item.Umidade);
             DadosDeHoje.datas.push(item.Data);
+
+            horasSalvas.add(HoraItem)
         }
+        
     });
 
 }
 
-DadosDeHojeUmPorUmLimitado(10, 2)
+DadosDeHojeUmPorUmLimitado(24, 2)
 
 let MMC = 5;
 TabelaUltimosLançamentos()
