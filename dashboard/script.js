@@ -63,7 +63,7 @@ let PegaOsDadosDeHj = {
                 dadosHoje.dados_segundos.push(item);
             })
         }
-        dadosHoje.UltDiaCDados = dadosHoje.dados_segundos[dados.dados_segundos.length-1].Data
+        dadosHoje.UltDiaCDados = dados.dados_segundos[dados.dados_segundos.length-1].Data
         /*
         dados.medias_diarias.forEach(function(item) {
             if (Utils.isHoje(item.Data)) {
@@ -90,20 +90,14 @@ function dataFormatadaSeparada(DataVerificar) {
 function dataFormatadaSeparadaHora(DataVerificar) {
     return DataVerificar.split(':');
 }
-function DadosDeHojeUmPorUmLimitado(Tam = 0, PegarACada = 1) {
+function DadosDeHojeUmPorUmLimitado() {
 
     DadosDeHoje.chuvas = [];
     DadosDeHoje.umidades = [];
     DadosDeHoje.datas = [];
 
-    function adicionarUmaHora(dataString, Add) {
-        let data = new Date(dataString);
-        data.setHours(data.getHours() + Add);
-        return data.toISOString().replace('T', ' ').split('.')[0]; // Formata de volta para o padrão 'YYYY-MM-DD HH:MM:SS'
-    }
-
-    let horasSalvas  = new Set();
-    LimitarTamanhoObj(PegaOsDadosDeHj.filtrarPorHoje(dados).dados_segundos, Tam).forEach((item, index) => {
+    let horasSalvas = new Set();
+    PegaOsDadosDeHj.filtrarPorHoje(dados).dados_segundos.forEach((item, index) => {
     let HoraItem = dataFormatadaSeparadaHora(dataFormatadaSeparada(item.Data)[1])[0]
         if(!horasSalvas.has(HoraItem)){
             DadosDeHoje.chuvas.push(converteChuva(item.Chuva));
@@ -112,13 +106,9 @@ function DadosDeHojeUmPorUmLimitado(Tam = 0, PegarACada = 1) {
 
             horasSalvas.add(HoraItem)
         }
-        
     });
-
 }
-
-DadosDeHojeUmPorUmLimitado(24, 2)
-
+DadosDeHojeUmPorUmLimitado()
 let MMC = 5;
 TabelaUltimosLançamentos()
 
