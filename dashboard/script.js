@@ -1,3 +1,6 @@
+var ii = 0
+var hh = 0
+
 function AtualizaData() {
     let data = null;
     $.ajax({
@@ -63,14 +66,14 @@ let PegaOsDadosDeHj = {
                 dadosHoje.dados_segundos.push(item);
             })
         }
-        dadosHoje.UltDiaCDados = dados.dados_segundos[dados.dados_segundos.length-1].Data
-        /*
-        dados.medias_diarias.forEach(function(item) {
-            if (Utils.isHoje(item.Data)) {
-                dadosHoje.medias_diarias.push(item);
-            }
-        });
-        */
+        dadosHoje.UltDiaCDados = dados.dados_segundos[dados.dados_segundos.length - 1].Data
+            /*
+            dados.medias_diarias.forEach(function(item) {
+                if (Utils.isHoje(item.Data)) {
+                    dadosHoje.medias_diarias.push(item);
+                }
+            });
+            */
         return dadosHoje;
     }
 }
@@ -84,12 +87,15 @@ let DadosDeHoje = {
 function LimitarTamanhoObj(Arr, Tam) {
     return Arr.slice(0, Tam)
 }
+
 function dataFormatadaSeparada(DataVerificar) {
     return DataVerificar.split(" ");
 }
+
 function dataFormatadaSeparadaHora(DataVerificar) {
     return DataVerificar.split(':');
 }
+
 function DadosDeHojeUmPorUmLimitado() {
 
     DadosDeHoje.chuvas = [];
@@ -98,11 +104,11 @@ function DadosDeHojeUmPorUmLimitado() {
 
     let horasSalvas = new Set();
     PegaOsDadosDeHj.filtrarPorHoje(dados).dados_segundos.forEach((item, index) => {
-    let HoraItem = dataFormatadaSeparadaHora(dataFormatadaSeparada(item.Data)[1])[0]
-        if(!horasSalvas.has(HoraItem)){
+        let HoraItem = dataFormatadaSeparadaHora(dataFormatadaSeparada(item.Data)[1])[0]
+        if (!horasSalvas.has(HoraItem)) {
             DadosDeHoje.chuvas.push(converteChuva(item.Chuva));
             DadosDeHoje.umidades.push(item.Umidade);
-            DadosDeHoje.datas.push(item.Data);
+            DadosDeHoje.datas.push(dataFormatadaSeparada(item.Data)[1]);
 
             horasSalvas.add(HoraItem)
         }
@@ -165,7 +171,7 @@ const backgroundPlugin = {
             return acc + ctx.measureText(item.text).width + 50; // Espaço para o quadrado de cor e texto
         }, 0);
         const legendX = (right + left - legendWidth) / 2; // Posiciona a legenda centralizada horizontalmente
-        const legendY = bottom + 30; // Posiciona a legenda logo abaixo do gráfico
+        const legendY = bottom + 75; // Posiciona a legenda logo abaixo do gráfico
         const legendSpacing = 200; // Espaçamento horizontal entre itens da legenda
 
         // Adiciona a legenda
@@ -188,21 +194,23 @@ Chart.register(backgroundPlugin);
 const dataLine = {
     type: "line",
     data: {
-        labels: DadosDeHoje.datas,
+        labels: preencherHorasFaltantes(DadosDeHoje.datas),
         datasets: [{
-            label: "Umidade",
-            data: DadosDeHoje.umidades,
-            borderColor: "rgb(1, 151, 252)",
-            backgroundColor: "rgb(34, 0, 255)",
-            fill: false,
-            cubicInterpolationMode: 'monotone', // Adiciona suavização
-        }, {
-            label: "Chuva",
-            data: DadosDeHoje.chuvas,
-            borderColor: "rgb(34, 159, 53)",
-            backgroundColor: "rgb(24, 79, 11)",
-            fill: false,
-        }],
+                label: "Umidade",
+                data: preencherUmidadeEChuvaFaltantes(DadosDeHoje.umidades),
+                borderColor: "rgb(1, 151, 252)",
+                backgroundColor: "rgb(34, 0, 255)",
+                fill: false,
+                cubicInterpolationMode: 'monotone', // Adiciona suavização
+            },
+            {
+                label: "Chuva",
+                data: preencherUmidadeEChuvaFaltantes(DadosDeHoje.chuvas),
+                borderColor: "rgb(34, 159, 53)",
+                backgroundColor: "rgb(24, 79, 11)",
+                fill: false,
+            }
+        ],
     },
     options: {
         scales: {
@@ -216,7 +224,7 @@ const dataLine = {
         },
         layout: {
             padding: {
-                bottom: 30 // Ajusta o padding inferior para garantir espaço para a legenda
+                bottom: 75 // Ajusta o padding inferior para garantir espaço para a legenda
             }
         }
     }
@@ -258,4 +266,58 @@ function SidBarSelect(type) {
             x.style.display = 'none';
         }
     })
+}
+
+function gerarTodasAsHoras() {
+    const horas = [];
+    for (let i = 0; i < 24; i++) {
+        horas.push(`${i.toString().padStart(2, '0')}:00:00`); // Formata no formato "HH:00"
+    }
+    return horas;
+}
+
+// Array de labels reais (com horas e minutos)
+
+
+// Função para extrair apenas as horas (HH:00) dos labels reais
+function extrairHoras(labelsReais) {
+    return labelsReais.map(label => {
+        // Extrai apenas a parte da hora, ignorando os minutos e segundos
+        return label.split(':')[0] + ':00:00';
+    });
+}
+
+// Função para preencher as horas faltantes no array de labels
+
+
+function preencherHorasFaltantes(labelsReais) {
+    function Addii() {
+        ii++
+        return labelsReais[ii - 1]
+    }
+
+    function Addhora(x) {
+        if (ii == 0) {
+            hh++
+        }
+        return x
+    }
+    return gerarTodasAsHoras().map((hora) => {
+        return extrairHoras(labelsReais).includes(hora) ? Addii() : Addhora(hora);
+
+    });
+}
+
+function preencherUmidadeEChuvaFaltantes(arr, inicio = hh, fim = 24) {
+    for (let i = 0; i < inicio; i++) {
+        arr.unshift(-1);
+    }
+    for (let i = arr[arr.length - 1] + 1; i <= fim; i++) {
+        arr.push(-1);
+    }
+    return arr;
+}
+
+function changeGrafico() {
+
 }
