@@ -82,6 +82,11 @@ let DadosDeHoje = {
     umidades: [],
     datas: []
 }
+let DadosDoMes = {
+    chuvas: [],
+    umidades: [],
+    datas: []
+}
 
 
 function LimitarTamanhoObj(Arr, Tam) {
@@ -318,6 +323,36 @@ function preencherUmidadeEChuvaFaltantes(arr, inicio = hh, fim = 24) {
     return arr;
 }
 
-function changeGrafico() {
-
+function changeGrafico(T) {
+    let dadosGraf = {
+        labels: null,
+        datasets: [{
+                label: "Umidade",
+                data: preencherUmidadeEChuvaFaltantes(DadosDeHoje.umidades),
+                borderColor: "rgb(1, 151, 252)",
+                backgroundColor: "rgb(34, 0, 255)",
+                fill: false,
+                cubicInterpolationMode: 'monotone', // Adiciona suavização
+            },
+            {
+                label: "Chuva",
+                data: preencherUmidadeEChuvaFaltantes(DadosDeHoje.chuvas),
+                borderColor: "rgb(34, 159, 53)",
+                backgroundColor: "rgb(24, 79, 11)",
+                fill: false,
+            }
+        ],
+    }
+    switch (T) {
+        case 1:
+            dadosGraf.labels = preencherHorasFaltantes(DadosDeHoje.datas);
+            dadosGraf.datasets[0].data = preencherUmidadeEChuvaFaltantes(DadosDeHoje.umidades)
+            dadosGraf.datasets[1].data = preencherUmidadeEChuvaFaltantes(DadosDeHoje.chuvas)
+            break;
+        case 2:
+            dadosGraf.labels = preencherHorasFaltantes(DadosDeHoje.datas);
+            dadosGraf.datasets[0].data = preencherUmidadeEChuvaFaltantes(DadosDeHoje.umidades)
+            dadosGraf.datasets[1].data = preencherUmidadeEChuvaFaltantes(DadosDeHoje.chuvas)
+            break;
+    }
 }
