@@ -196,7 +196,7 @@ const backgroundPlugin = {
 Chart.register(backgroundPlugin);
 
 // Dados e configurações do gráfico
-const dataLine = {
+let dataLine = {
     type: "line",
     data: {
         labels: preencherHorasFaltantes(DadosDeHoje.datas),
@@ -296,6 +296,8 @@ function extrairHoras(labelsReais) {
 
 
 function preencherHorasFaltantes(labelsReais) {
+    hh = 0
+    ii = 0
     function Addii() {
         ii++
         return labelsReais[ii - 1]
@@ -309,50 +311,37 @@ function preencherHorasFaltantes(labelsReais) {
     }
     return gerarTodasAsHoras().map((hora) => {
         return extrairHoras(labelsReais).includes(hora) ? Addii() : Addhora(hora);
-
     });
 }
 
-function preencherUmidadeEChuvaFaltantes(arr, inicio = hh, fim = 24) {
+function preencherUmidadeEChuvaFaltantes(arrr, inicio = hh, fim = 24) {
+    arr = arrr.slice();
     for (let i = 0; i < inicio; i++) {
         arr.unshift(-1);
     }
     for (let i = arr[arr.length - 1] + 1; i <= fim; i++) {
         arr.push(-1);
     }
+    console.log(arr, inicio, fim)
     return arr;
 }
 
 function changeGrafico(T) {
-    let dadosGraf = {
-        labels: null,
-        datasets: [{
-                label: "Umidade",
-                data: preencherUmidadeEChuvaFaltantes(DadosDeHoje.umidades),
-                borderColor: "rgb(1, 151, 252)",
-                backgroundColor: "rgb(34, 0, 255)",
-                fill: false,
-                cubicInterpolationMode: 'monotone', // Adiciona suavização
-            },
-            {
-                label: "Chuva",
-                data: preencherUmidadeEChuvaFaltantes(DadosDeHoje.chuvas),
-                borderColor: "rgb(34, 159, 53)",
-                backgroundColor: "rgb(24, 79, 11)",
-                fill: false,
-            }
-        ],
-    }
+
     switch (T) {
-        case 1:
-            dadosGraf.labels = preencherHorasFaltantes(DadosDeHoje.datas);
-            dadosGraf.datasets[0].data = preencherUmidadeEChuvaFaltantes(DadosDeHoje.umidades)
-            dadosGraf.datasets[1].data = preencherUmidadeEChuvaFaltantes(DadosDeHoje.chuvas)
+        case '1':
+            dataLine.data.labels = preencherHorasFaltantes(DadosDeHoje.datas);
+            dataLine.data.datasets[0].data = preencherUmidadeEChuvaFaltantes(DadosDeHoje.umidades)
+            dataLine.data.datasets[1].data = preencherUmidadeEChuvaFaltantes(DadosDeHoje.chuvas)
             break;
-        case 2:
-            dadosGraf.labels = preencherHorasFaltantes(DadosDeHoje.datas);
-            dadosGraf.datasets[0].data = preencherUmidadeEChuvaFaltantes(DadosDeHoje.umidades)
-            dadosGraf.datasets[1].data = preencherUmidadeEChuvaFaltantes(DadosDeHoje.chuvas)
+        case '2':
+            dataLine.data.labels = 'brunogay'
+            dataLine.data.datasets[0].data = preencherUmidadeEChuvaFaltantes(DadosDeHoje.umidades)
+            dataLine.data.datasets[1].data = preencherUmidadeEChuvaFaltantes(DadosDeHoje.chuvas)
             break;
     }
+
+    myChart.data.datasets = dataLine.data.datasets;
+    myChart.data.labels = dataLine.data.labels;
+    myChart.update()
 }
