@@ -49,7 +49,6 @@ let PegaOsDadosDeHj = {
     filtrarPorHoje: function(dados) {
         let dadosHoje = {
             "dados_segundos": [],
-            "medias_diarias": [],
             UltDiaCDados: null
         };
 
@@ -77,6 +76,38 @@ let PegaOsDadosDeHj = {
         return dadosHoje;
     }
 }
+let PegaOsDadosMensais = {
+    VerificaSeEMensal: function(DataVerificar){
+        let partesData = DataVerificar.split("-");
+        let dataFormatada = partesData[1] + "/" + partesData[2] + "/" + partesData[0];
+        return new Date(dataFormatada).toLocaleString('default', { month: 'long' }) === new Date().toLocaleString('default', { month: 'long' });
+    },filtrarPorMes: function (dados) {
+
+        let dadosHoje = {
+            "medias_diarias": []
+        };
+
+let Q = 0;
+let Menos = 0;
+
+testaMes()
+
+function testaMes(){
+    dados.medias_diarias.forEach(function(item) {
+        if (PegaOsDadosMensais.VerificaSeEMensal(new Date(new Date(item.Data).setMonth(new Date(item.Data).getMonth() + Menos)).toISOString().split('T')[0])){
+            Q++
+            dadosHoje.medias_diarias.push(item)
+        }
+    });
+    alert(Q)
+    }
+        if (Q == 0) {
+            Menos++ 
+            testaMes()
+        }
+        return dadosHoje
+    }
+}
 let DadosDeHoje = {
     chuvas: [],
     umidades: [],
@@ -85,7 +116,8 @@ let DadosDeHoje = {
 let DadosDoMes = {
     chuvas: [],
     umidades: [],
-    datas: []
+    datas: [],
+    UltimoMes: null
 }
 
 
@@ -120,6 +152,20 @@ function DadosDeHojeUmPorUmLimitado() {
     });
 }
 DadosDeHojeUmPorUmLimitado()
+
+function DadosDoMesUmPorUmLimitado(){
+    DadosDoMes.chuvas = []
+    DadosDoMes.umidades = []
+    DadosDoMes.datas = []
+    DadosDoMes.UltimoMes = null
+
+    PegaOsDadosMensais.filtrarPorMes(dados).medias_diarias.forEach((item) =>{
+        DadosDoMes.chuvas.push(item.Chuva)
+        DadosDoMes.umidades.push(item.Umidade)
+        DadosDoMes.datas.push(item.Data)
+    })
+}
+DadosDoMesUmPorUmLimitado()
 let MMC = 5;
 TabelaUltimosLançamentos()
 
@@ -127,7 +173,7 @@ function TabelaUltimosLançamentos() {
     MMC += 5;
     $('#UltimosLançamentosTBody').html('')
     $('#UltimosLançamentosTFoot').html('')
-    LimitarTamanhoObj(dados.dados_segundos, MMC).forEach((e) => {
+    LimitarTamanhoObj(dados.dados_segundos.reverse(), MMC).forEach((e) => {
         $('#UltimosLançamentosTBody').append(`
                             <tr>
                                 <th scope="row">${e.ID}</th>
@@ -335,9 +381,9 @@ function changeGrafico(T) {
             dataLine.data.datasets[1].data = preencherUmidadeEChuvaFaltantes(DadosDeHoje.chuvas)
             break;
         case '2':
-            dataLine.data.labels = 'brunogay'
-            dataLine.data.datasets[0].data = preencherUmidadeEChuvaFaltantes(DadosDeHoje.umidades)
-            dataLine.data.datasets[1].data = preencherUmidadeEChuvaFaltantes(DadosDeHoje.chuvas)
+            dataLine.data.labels = DadosDoMes.datas
+            dataLine.data.datasets[0].data = DadosDoMes.umidades
+            dataLine.data.datasets[1].data = DadosDoMes.chuvas
             break;
     }
 
