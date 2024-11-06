@@ -341,7 +341,7 @@ function extrairHoras(labelsReais) {
 // Função para preencher as horas faltantes no array de labels
 
 
-function preencherHorasFaltantes(labelsReais) {
+function preencherHorasFaltantes(labelsReais) { 
     hh = 0
     ii = 0
     function Addii() {
@@ -370,6 +370,19 @@ function preencherUmidadeEChuvaFaltantes(arrr, fim = 24, inicio = hh) {
     }
     console.log(arr, inicio, fim)
     return arr;
+}
+function gerarTodasOsMeses() {
+    const Meses = [];
+    for (let i = 1; i <= 12; i++) {
+        Meses.push(`${i.toString().padStart(2, '0')}/0000`); // Formata no formato "HH:00"
+    }
+    return Meses;
+}
+function extrairMeses(labelsReais){
+    return labelsReais.map(label => {
+        // Extrai apenas a parte da hora, ignorando os minutos e segundos
+        return label.split('/')[0] + '00/00/0000';
+})
 }
 
 function changeGrafico(T) {
