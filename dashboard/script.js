@@ -8,10 +8,10 @@ function AtualizaData() {
         method: 'GET',
         dataType: 'json',
         async: false, // Torna a chamada síncrona
-        success: function(response) {
+        success: function (response) {
             data = response;
         },
-        error: function(xhr, status, error) {
+        error: function (xhr, status, error) {
             console.error('Error fetching data:', status, error);
         }
     });
@@ -40,13 +40,13 @@ var ContDiario;
 var ultimoDiaComDados;
 
 let PegaOsDadosDeHj = {
-    VerificaSeEHj: function(DataVerificar) {
+    VerificaSeEHj: function (DataVerificar) {
         let partesDataDia = DataVerificar.split(" ");
         let partesData = partesDataDia[0].split("-");
         let dataFormatada = partesData[1] + "/" + partesData[2] + "/" + partesData[0];
         return new Date().toDateString() === new Date(dataFormatada).toDateString();
     },
-    filtrarPorHoje: function(dados) {
+    filtrarPorHoje: function (dados) {
         let dadosHoje = {
             "dados_segundos": [],
             UltDiaCDados: null
@@ -55,54 +55,54 @@ let PegaOsDadosDeHj = {
         ContDiario = dados.dados_segundos.some(item => PegaOsDadosDeHj.VerificaSeEHj(item.Data));
 
         if (ContDiario) {
-            dados.dados_segundos.forEach(function(item) {
+            dados.dados_segundos.forEach(function (item) {
                 if (PegaOsDadosDeHj.VerificaSeEHj(item.Data)) {
                     dadosHoje.dados_segundos.push(item);
                 }
             })
         } else {
-            dados.dados_segundos.forEach(function(item) {
+            dados.dados_segundos.forEach(function (item) {
                 dadosHoje.dados_segundos.push(item);
             })
         }
         dadosHoje.UltDiaCDados = dados.dados_segundos[dados.dados_segundos.length - 1].Data
-            /*
-            dados.medias_diarias.forEach(function(item) {
-                if (Utils.isHoje(item.Data)) {
-                    dadosHoje.medias_diarias.push(item);
-                }
-            });
-            */
+        /*
+        dados.medias_diarias.forEach(function(item) {
+            if (Utils.isHoje(item.Data)) {
+                dadosHoje.medias_diarias.push(item);
+            }
+        });
+        */
         return dadosHoje;
     }
 }
 let PegaOsDadosMensais = {
-    VerificaSeEMensal: function(DataVerificar){
+    VerificaSeEMensal: function (DataVerificar) {
         let partesData = DataVerificar.split("-");
         let dataFormatada = partesData[1] + "/" + partesData[2] + "/" + partesData[0];
-        return new Date(dataFormatada).toLocaleString('default', { month: 'long' }) === new Date().toLocaleString('default', { month: 'long' });
-    },filtrarPorMes: function (dados) {
+        return new Date(dataFormatada).getMonth() === new Date().getMonth() &&
+            new Date(dataFormatada).getFullYear() === new Date().getFullYear()
+    }, filtrarPorMes: function (dados) {
 
         let dadosHoje = {
             "medias_diarias": []
         };
 
-let Q = 0;
-let Menos = 0;
+        let Q = 0;
+        let Menos = 0;
 
-testaMes()
 
-function testaMes(){
-    dados.medias_diarias.forEach(function(item) {
-        if (PegaOsDadosMensais.VerificaSeEMensal(new Date(new Date(item.Data).setMonth(new Date(item.Data).getMonth() + Menos)).toISOString().split('T')[0])){
-            Q++
-            dadosHoje.medias_diarias.push(item)
+        function testaMes() {
+            dados.medias_diarias.forEach(function (item) {
+                if (PegaOsDadosMensais.VerificaSeEMensal(new Date(new Date(item.Data).setMonth(new Date(item.Data).getMonth() + Menos)).toISOString().split('T')[0])) {
+                    Q++
+                    dadosHoje.medias_diarias.push(item)
+                }
+            });
         }
-    });
-    alert(Q)
-    }
-        if (Q == 0) {
-            Menos++ 
+
+        while (Q == 0 && Menos < 36) {
+            Menos++
             testaMes()
         }
         return dadosHoje
@@ -153,13 +153,13 @@ function DadosDeHojeUmPorUmLimitado() {
 }
 DadosDeHojeUmPorUmLimitado()
 
-function DadosDoMesUmPorUmLimitado(){
+function DadosDoMesUmPorUmLimitado() {
     DadosDoMes.chuvas = []
     DadosDoMes.umidades = []
     DadosDoMes.datas = []
     DadosDoMes.UltimoMes = null
 
-    PegaOsDadosMensais.filtrarPorMes(dados).medias_diarias.forEach((item) =>{
+    PegaOsDadosMensais.filtrarPorMes(dados).medias_diarias.forEach((item) => {
         DadosDoMes.chuvas.push(item.Chuva)
         DadosDoMes.umidades.push(item.Umidade)
         DadosDoMes.datas.push(item.Data)
@@ -247,20 +247,20 @@ let dataLine = {
     data: {
         labels: preencherHorasFaltantes(DadosDeHoje.datas),
         datasets: [{
-                label: "Umidade",
-                data: preencherUmidadeEChuvaFaltantes(DadosDeHoje.umidades),
-                borderColor: "rgb(1, 151, 252)",
-                backgroundColor: "rgb(34, 0, 255)",
-                fill: false,
-                cubicInterpolationMode: 'monotone', // Adiciona suavização
-            },
-            {
-                label: "Chuva",
-                data: preencherUmidadeEChuvaFaltantes(DadosDeHoje.chuvas),
-                borderColor: "rgb(34, 159, 53)",
-                backgroundColor: "rgb(24, 79, 11)",
-                fill: false,
-            }
+            label: "Umidade",
+            data: preencherUmidadeEChuvaFaltantes(DadosDeHoje.umidades),
+            borderColor: "rgb(1, 151, 252)",
+            backgroundColor: "rgb(34, 0, 255)",
+            fill: false,
+            cubicInterpolationMode: 'monotone', // Adiciona suavização
+        },
+        {
+            label: "Chuva",
+            data: preencherUmidadeEChuvaFaltantes(DadosDeHoje.chuvas),
+            borderColor: "rgb(34, 159, 53)",
+            backgroundColor: "rgb(24, 79, 11)",
+            fill: false,
+        }
         ],
     },
     options: {
@@ -360,7 +360,7 @@ function preencherHorasFaltantes(labelsReais) {
     });
 }
 
-function preencherUmidadeEChuvaFaltantes(arrr, inicio = hh, fim = 24) {
+function preencherUmidadeEChuvaFaltantes(arrr, fim = 24, inicio = hh) {
     arr = arrr.slice();
     for (let i = 0; i < inicio; i++) {
         arr.unshift(-1);
