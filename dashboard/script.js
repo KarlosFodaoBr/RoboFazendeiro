@@ -85,12 +85,12 @@ let PegaOsDadosMensais = {
     }, filtrarPorMes: function (dados) {
 
         let dadosHoje = {
-            "medias_diarias": []
+            "medias_diarias": [],
+            mes: null
         };
 
         let Q = 0;
         let Menos = 0;
-
 
         function testaMes() {
             dados.medias_diarias.forEach(function (item) {
@@ -248,7 +248,7 @@ let dataLine = {
         labels: preencherHorasFaltantes(DadosDeHoje.datas),
         datasets: [{
             label: "Umidade",
-            data: preencherUmidadeEChuvaFaltantes(DadosDeHoje.umidades),
+            data: preencherUmidadeEChuvaFaltantes(DadosDeHoje.datas, DadosDeHoje.umidades),
             borderColor: "rgb(1, 151, 252)",
             backgroundColor: "rgb(34, 0, 255)",
             fill: false,
@@ -256,7 +256,7 @@ let dataLine = {
         },
         {
             label: "Chuva",
-            data: preencherUmidadeEChuvaFaltantes(DadosDeHoje.chuvas),
+            data: preencherUmidadeEChuvaFaltantes(DadosDeHoje.chuvas, DadosDeHoje.chuvas),
             borderColor: "rgb(34, 159, 53)",
             backgroundColor: "rgb(24, 79, 11)",
             fill: false,
@@ -341,7 +341,7 @@ function extrairHoras(labelsReais) {
 // Função para preencher as horas faltantes no array de labels
 
 
-function preencherHorasFaltantes(labelsReais) { 
+function preencherHorasFaltantes(labelsReais) {
     hh = 0
     ii = 0
     function Addii() {
@@ -359,30 +359,90 @@ function preencherHorasFaltantes(labelsReais) {
         return extrairHoras(labelsReais).includes(hora) ? Addii() : Addhora(hora);
     });
 }
+function preencherUmidadeEChuvaFaltantes(datasOriginal, UmidadesOriginal, fim = 24) {
 
-function preencherUmidadeEChuvaFaltantes(arrr, fim = 24, inicio = hh) {
-    arr = arrr.slice();
-    for (let i = 0; i < inicio; i++) {
-        arr.unshift(-1);
+    let data = datasOriginal.slice()
+    let Umidade = UmidadesOriginal.slice()
+
+    let MenosUns = Array(fim).fill(-1);
+    let NumeroAModificar = [];    
+
+    data.forEach((e)=>{
+        if (typeof e === 'string') {
+            NumeroAModificar.push(parseFloat(e.split(':')[0]));
+        }
+    })
+
+    NumeroAModificar.forEach((e, index)=>{
+        MenosUns[e] = Umidade[index]
+    })
+    return MenosUns;
+}
+
+
+
+
+function preencherUmidadeEChuvaFaltantesMes(datasOriginal, UmidadesOriginal, fim = 12) {
+    let data = datasOriginal.slice()
+    let Umidade = UmidadesOriginal.slice()
+
+    let MenosUns = Array(fim).fill(-1);
+    let NumeroAModificar = [];    
+
+    data.forEach((e)=>{
+        if (typeof e === 'string') {
+            NumeroAModificar.push(parseFloat(e.split('-')[1]));
+        }
+    })
+console.log(NumeroAModificar)
+    NumeroAModificar.forEach((e, index)=>{
+        MenosUns[e-1] = Umidade[index]
+    })
+    return MenosUns;
+}
+
+
+
+
+
+
+function preencherMesesFaltantes(MesesReais){
+    hh = 0
+    ii = 0
+    function Addii() {
+        ii++
+        return MesesReais[ii - 1]
     }
-    for (let i = arr[arr.length - 1] + 1; i <= fim; i++) {
-        arr.push(-1);
+    
+    function Addhora(x) {
+        if (ii == 0) {
+            hh++
+        }
+        return x
     }
-    console.log(arr, inicio, fim)
-    return arr;
+
+    return gerarTodasOsMeses().map((hora) => {
+        return extrairMeses(MesesReais).includes(hora) ? Addii() : Addhora(hora);
+    });
 }
 function gerarTodasOsMeses() {
     const Meses = [];
     for (let i = 1; i <= 12; i++) {
-        Meses.push(`${i.toString().padStart(2, '0')}/0000`); // Formata no formato "HH:00"
+        Meses.push(`2024-${i.toString().padStart(2, '0')}-00`); // Formata no formato "HH:00"
     }
     return Meses;
 }
-function extrairMeses(labelsReais){
+function gerarTodasOsDias() {
+    const Meses = [];
+    for (let i = 1; i <= 30; i++) {
+        Meses.push(`${i.toString().padStart(2, '0')}-00`); // Formata no formato "HH:00"
+    }
+    return Meses;
+}
+function extrairMeses(labelsReais) {
     return labelsReais.map(label => {
-        // Extrai apenas a parte da hora, ignorando os minutos e segundos
-        return label.split('/')[0] + '00/00/0000';
-})
+        return '2024-'+label.split('-')[1]+'-00';
+    })
 }
 
 function changeGrafico(T) {
@@ -390,13 +450,13 @@ function changeGrafico(T) {
     switch (T) {
         case '1':
             dataLine.data.labels = preencherHorasFaltantes(DadosDeHoje.datas);
-            dataLine.data.datasets[0].data = preencherUmidadeEChuvaFaltantes(DadosDeHoje.umidades)
-            dataLine.data.datasets[1].data = preencherUmidadeEChuvaFaltantes(DadosDeHoje.chuvas)
+            dataLine.data.datasets[0].data = preencherUmidadeEChuvaFaltantes(DadosDeHoje.datas, DadosDeHoje.umidades)
+            dataLine.data.datasets[1].data = preencherUmidadeEChuvaFaltantes(DadosDeHoje.datas, DadosDeHoje.chuvas)
             break;
         case '2':
-            dataLine.data.labels = DadosDoMes.datas
-            dataLine.data.datasets[0].data = DadosDoMes.umidades
-            dataLine.data.datasets[1].data = DadosDoMes.chuvas
+            dataLine.data.labels = preencherMesesFaltantes(DadosDoMes.datas)
+            dataLine.data.datasets[0].data = preencherUmidadeEChuvaFaltantesMes(DadosDoMes.datas, DadosDoMes.umidades)
+            dataLine.data.datasets[1].data = preencherUmidadeEChuvaFaltantesMes(DadosDoMes.datas, DadosDoMes.chuvas)
             break;
     }
 
