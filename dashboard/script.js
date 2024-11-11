@@ -8,10 +8,10 @@ function AtualizaData() {
         method: 'GET',
         dataType: 'json',
         async: false, // Torna a chamada síncrona
-        success: function (response) {
+        success: function(response) {
             data = response;
         },
-        error: function (xhr, status, error) {
+        error: function(xhr, status, error) {
             console.error('Error fetching data:', status, error);
         }
     });
@@ -40,13 +40,13 @@ var ContDiario;
 var ultimoDiaComDados;
 
 let PegaOsDadosDeHj = {
-    VerificaSeEHj: function (DataVerificar) {
+    VerificaSeEHj: function(DataVerificar) {
         let partesDataDia = DataVerificar.split(" ");
         let partesData = partesDataDia[0].split("-");
         let dataFormatada = partesData[1] + "/" + partesData[2] + "/" + partesData[0];
         return new Date().toDateString() === new Date(dataFormatada).toDateString();
     },
-    filtrarPorHoje: function (dados) {
+    filtrarPorHoje: function(dados) {
         let dadosHoje = {
             "dados_segundos": [],
             UltDiaCDados: null
@@ -55,34 +55,35 @@ let PegaOsDadosDeHj = {
         ContDiario = dados.dados_segundos.some(item => PegaOsDadosDeHj.VerificaSeEHj(item.Data));
 
         if (ContDiario) {
-            dados.dados_segundos.forEach(function (item) {
+            dados.dados_segundos.forEach(function(item) {
                 if (PegaOsDadosDeHj.VerificaSeEHj(item.Data)) {
                     dadosHoje.dados_segundos.push(item);
                 }
             })
         } else {
-            dados.dados_segundos.forEach(function (item) {
+            dados.dados_segundos.forEach(function(item) {
                 dadosHoje.dados_segundos.push(item);
             })
         }
         dadosHoje.UltDiaCDados = dados.dados_segundos[dados.dados_segundos.length - 1].Data
-        /*
-        dados.medias_diarias.forEach(function(item) {
-            if (Utils.isHoje(item.Data)) {
-                dadosHoje.medias_diarias.push(item);
-            }
-        });
-        */
+            /*
+            dados.medias_diarias.forEach(function(item) {
+                if (Utils.isHoje(item.Data)) {
+                    dadosHoje.medias_diarias.push(item);
+                }
+            });
+            */
         return dadosHoje;
     }
 }
 let PegaOsDadosMensais = {
-    VerificaSeEMensal: function (DataVerificar) {
+    VerificaSeEMensal: function(DataVerificar) {
         let partesData = DataVerificar.split("-");
         let dataFormatada = partesData[1] + "/" + partesData[2] + "/" + partesData[0];
         return new Date(dataFormatada).getMonth() === new Date().getMonth() &&
             new Date(dataFormatada).getFullYear() === new Date().getFullYear()
-    }, filtrarPorMes: function (dados) {
+    },
+    filtrarPorMes: function(dados) {
 
         let dadosHoje = {
             "medias_diarias": [],
@@ -92,8 +93,10 @@ let PegaOsDadosMensais = {
         let Q = 0;
         let Menos = 0;
 
+
+
         function testaMes() {
-            dados.medias_diarias.forEach(function (item) {
+            dados.medias_diarias.forEach(function(item) {
                 if (PegaOsDadosMensais.VerificaSeEMensal(new Date(new Date(item.Data).setMonth(new Date(item.Data).getMonth() + Menos)).toISOString().split('T')[0])) {
                     Q++
                     dadosHoje.medias_diarias.push(item)
@@ -104,6 +107,9 @@ let PegaOsDadosMensais = {
         while (Q == 0 && Menos < 36) {
             Menos++
             testaMes()
+        }
+        if (dadosHoje.medias_diarias.length > 0) {
+            dadosHoje.mes = dadosHoje.medias_diarias[0].Data
         }
         return dadosHoje
     }
@@ -247,20 +253,20 @@ let dataLine = {
     data: {
         labels: preencherHorasFaltantes(DadosDeHoje.datas),
         datasets: [{
-            label: "Umidade",
-            data: preencherUmidadeEChuvaFaltantes(DadosDeHoje.datas, DadosDeHoje.umidades),
-            borderColor: "rgb(1, 151, 252)",
-            backgroundColor: "rgb(34, 0, 255)",
-            fill: false,
-            cubicInterpolationMode: 'monotone', // Adiciona suavização
-        },
-        {
-            label: "Chuva",
-            data: preencherUmidadeEChuvaFaltantes(DadosDeHoje.chuvas, DadosDeHoje.chuvas),
-            borderColor: "rgb(34, 159, 53)",
-            backgroundColor: "rgb(24, 79, 11)",
-            fill: false,
-        }
+                label: "Umidade",
+                data: preencherUmidadeEChuvaFaltantes(DadosDeHoje.datas, DadosDeHoje.umidades),
+                borderColor: "rgb(1, 151, 252)",
+                backgroundColor: "rgb(34, 0, 255)",
+                fill: false,
+                cubicInterpolationMode: 'monotone', // Adiciona suavização
+            },
+            {
+                label: "Chuva",
+                data: preencherUmidadeEChuvaFaltantes(DadosDeHoje.chuvas, DadosDeHoje.chuvas),
+                borderColor: "rgb(34, 159, 53)",
+                backgroundColor: "rgb(24, 79, 11)",
+                fill: false,
+            }
         ],
     },
     options: {
@@ -344,6 +350,7 @@ function extrairHoras(labelsReais) {
 function preencherHorasFaltantes(labelsReais) {
     hh = 0
     ii = 0
+
     function Addii() {
         ii++
         return labelsReais[ii - 1]
@@ -359,21 +366,22 @@ function preencherHorasFaltantes(labelsReais) {
         return extrairHoras(labelsReais).includes(hora) ? Addii() : Addhora(hora);
     });
 }
+
 function preencherUmidadeEChuvaFaltantes(datasOriginal, UmidadesOriginal, fim = 24) {
 
     let data = datasOriginal.slice()
     let Umidade = UmidadesOriginal.slice()
 
     let MenosUns = Array(fim).fill(-1);
-    let NumeroAModificar = [];    
+    let NumeroAModificar = [];
 
-    data.forEach((e)=>{
+    data.forEach((e) => {
         if (typeof e === 'string') {
             NumeroAModificar.push(parseFloat(e.split(':')[0]));
         }
     })
 
-    NumeroAModificar.forEach((e, index)=>{
+    NumeroAModificar.forEach((e, index) => {
         MenosUns[e] = Umidade[index]
     })
     return MenosUns;
@@ -387,16 +395,16 @@ function preencherUmidadeEChuvaFaltantesMes(datasOriginal, UmidadesOriginal, fim
     let Umidade = UmidadesOriginal.slice()
 
     let MenosUns = Array(fim).fill(-1);
-    let NumeroAModificar = [];    
+    let NumeroAModificar = [];
 
-    data.forEach((e)=>{
+    data.forEach((e) => {
         if (typeof e === 'string') {
             NumeroAModificar.push(parseFloat(e.split('-')[1]));
         }
     })
-console.log(NumeroAModificar)
-    NumeroAModificar.forEach((e, index)=>{
-        MenosUns[e-1] = Umidade[index]
+    console.log(NumeroAModificar)
+    NumeroAModificar.forEach((e, index) => {
+        MenosUns[e - 1] = Umidade[index]
     })
     return MenosUns;
 }
@@ -406,14 +414,15 @@ console.log(NumeroAModificar)
 
 
 
-function preencherMesesFaltantes(MesesReais){
+function preencherMesesFaltantes(MesesReais) {
     hh = 0
     ii = 0
+
     function Addii() {
         ii++
         return MesesReais[ii - 1]
     }
-    
+
     function Addhora(x) {
         if (ii == 0) {
             hh++
@@ -425,6 +434,7 @@ function preencherMesesFaltantes(MesesReais){
         return extrairMeses(MesesReais).includes(hora) ? Addii() : Addhora(hora);
     });
 }
+
 function gerarTodasOsMeses() {
     const Meses = [];
     for (let i = 1; i <= 12; i++) {
@@ -432,6 +442,7 @@ function gerarTodasOsMeses() {
     }
     return Meses;
 }
+
 function gerarTodasOsDias() {
     const Meses = [];
     for (let i = 1; i <= 30; i++) {
@@ -439,9 +450,10 @@ function gerarTodasOsDias() {
     }
     return Meses;
 }
+
 function extrairMeses(labelsReais) {
     return labelsReais.map(label => {
-        return '2024-'+label.split('-')[1]+'-00';
+        return '2024-' + label.split('-')[1] + '-00';
     })
 }
 
