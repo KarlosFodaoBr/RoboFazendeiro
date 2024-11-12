@@ -87,13 +87,14 @@ let PegaOsDadosMensais = {
 
         let dadosHoje = {
             "medias_diarias": [],
-            mes: null
+            mes: null,
+            ano: null
         };
 
         let Q = 0;
         let Menos = 0;
 
-
+        testaMes()
 
         function testaMes() {
             dados.medias_diarias.forEach(function(item) {
@@ -104,13 +105,19 @@ let PegaOsDadosMensais = {
             });
         }
 
-        while (Q == 0 && Menos < 36) {
+        while (Q == 0 && Menos < 12) {
             Menos++
             testaMes()
         }
+
         if (dadosHoje.medias_diarias.length > 0) {
-            dadosHoje.mes = dadosHoje.medias_diarias[0].Data
+            dadosHoje.mes = dadosHoje.medias_diarias[0].Data.split('-')[1]
+            dadosHoje.ano = dadosHoje.medias_diarias[0].Data.split('-')[0]
+        } else {
+            dadosHoje.mes = '00'
+            dadosHoje.ano = '0000'
         }
+
         return dadosHoje
     }
 }
@@ -123,9 +130,14 @@ let DadosDoMes = {
     chuvas: [],
     umidades: [],
     datas: [],
-    UltimoMes: null
+    UltimoMes: null,
+    UltimoAno: null
 }
-
+let DadosDoAno = {
+    chuvas: [],
+    umidades: [],
+    datas: []
+}
 
 function LimitarTamanhoObj(Arr, Tam) {
     return Arr.slice(0, Tam)
@@ -170,6 +182,8 @@ function DadosDoMesUmPorUmLimitado() {
         DadosDoMes.umidades.push(item.Umidade)
         DadosDoMes.datas.push(item.Data)
     })
+    DadosDoMes.UltimoMes = (PegaOsDadosMensais.filtrarPorMes(dados).mes)
+    DadosDoMes.UltimoAno = (PegaOsDadosMensais.filtrarPorMes(dados).ano)
 }
 DadosDoMesUmPorUmLimitado()
 let MMC = 5;
@@ -325,13 +339,7 @@ function SidBarSelect(type) {
     })
 }
 
-function gerarTodasAsHoras() {
-    const horas = [];
-    for (let i = 0; i < 24; i++) {
-        horas.push(`${i.toString().padStart(2, '0')}:00:00`); // Formata no formato "HH:00"
-    }
-    return horas;
-}
+
 
 // Array de labels reais (com horas e minutos)
 
@@ -345,6 +353,70 @@ function extrairHoras(labelsReais) {
 }
 
 // Função para preencher as horas faltantes no array de labels
+
+
+
+
+function preencherUmidadeEChuvaFaltantes(datasOriginal, UmidadesOriginal, fim = 24) {
+
+    let data = datasOriginal.slice()
+    let Umidade = UmidadesOriginal.slice()
+
+    let MenosUns = Array(fim).fill(-1);
+    let NumeroAModificar = [];
+
+    data.forEach((e) => {
+        if (typeof e === 'string') {
+            NumeroAModificar.push(parseFloat(e.split(':')[0]));
+        }
+    })
+
+    NumeroAModificar.forEach((e, index) => {
+        MenosUns[e] = Umidade[index]
+    })
+    return MenosUns;
+}
+
+function preencherUmidadeEChuvaFaltantesMes(datasOriginal, UmidadesOriginal, fim = 12) {
+    let data = datasOriginal.slice()
+    let Umidade = UmidadesOriginal.slice()
+
+    let MenosUns = Array(fim).fill(-1);
+    let NumeroAModificar = [];
+
+    data.forEach((e) => {
+        if (typeof e === 'string') {
+            NumeroAModificar.push(parseFloat(e.split('-')[1]));
+        }
+    })
+    console.log(NumeroAModificar)
+    NumeroAModificar.forEach((e, index) => {
+        MenosUns[e - 1] = Umidade[index]
+    })
+    return MenosUns;
+}
+
+function preencherUmidadeEChuvaFaltantesDia(datasOriginal, UmidadesOriginal) {
+    let data = datasOriginal.slice()
+    let Umidade = UmidadesOriginal.slice()
+
+    let fim = new Date(data[0].split('-')[0], data[0].split('-')[1], 0).getDate()
+
+    let MenosUns = Array(fim).fill(-1);
+    let NumeroAModificar = [];
+
+    data.forEach((e) => {
+        if (typeof e === 'string') {
+            NumeroAModificar.push(parseFloat(e.split('-')[2]));
+        }
+    })
+    console.log(NumeroAModificar)
+    NumeroAModificar.forEach((e, index) => {
+        MenosUns[e - 1] = Umidade[index]
+    })
+    return MenosUns;
+}
+
 
 
 function preencherHorasFaltantes(labelsReais) {
@@ -367,52 +439,13 @@ function preencherHorasFaltantes(labelsReais) {
     });
 }
 
-function preencherUmidadeEChuvaFaltantes(datasOriginal, UmidadesOriginal, fim = 24) {
-
-    let data = datasOriginal.slice()
-    let Umidade = UmidadesOriginal.slice()
-
-    let MenosUns = Array(fim).fill(-1);
-    let NumeroAModificar = [];
-
-    data.forEach((e) => {
-        if (typeof e === 'string') {
-            NumeroAModificar.push(parseFloat(e.split(':')[0]));
-        }
-    })
-
-    NumeroAModificar.forEach((e, index) => {
-        MenosUns[e] = Umidade[index]
-    })
-    return MenosUns;
+function gerarTodasAsHoras() {
+    const horas = [];
+    for (let i = 0; i < 24; i++) {
+        horas.push(`${i.toString().padStart(2, '0')}:00:00`); // Formata no formato "HH:00"
+    }
+    return horas;
 }
-
-
-
-
-function preencherUmidadeEChuvaFaltantesMes(datasOriginal, UmidadesOriginal, fim = 12) {
-    let data = datasOriginal.slice()
-    let Umidade = UmidadesOriginal.slice()
-
-    let MenosUns = Array(fim).fill(-1);
-    let NumeroAModificar = [];
-
-    data.forEach((e) => {
-        if (typeof e === 'string') {
-            NumeroAModificar.push(parseFloat(e.split('-')[1]));
-        }
-    })
-    console.log(NumeroAModificar)
-    NumeroAModificar.forEach((e, index) => {
-        MenosUns[e - 1] = Umidade[index]
-    })
-    return MenosUns;
-}
-
-
-
-
-
 
 function preencherMesesFaltantes(MesesReais) {
     hh = 0
@@ -443,10 +476,10 @@ function gerarTodasOsMeses() {
     return Meses;
 }
 
-function gerarTodasOsDias() {
+function gerarTodasOsDias(mes = '00', ano = '0000') {
     const Meses = [];
-    for (let i = 1; i <= 30; i++) {
-        Meses.push(`${i.toString().padStart(2, '0')}-00`); // Formata no formato "HH:00"
+    for (let i = 1; i <= new Date(ano, mes, 0).getDate(); i++) {
+        Meses.push(`${ano}-${mes}-${i.toString().padStart(2, '0')}`); // Formata no formato "HH:00"
     }
     return Meses;
 }
@@ -466,6 +499,11 @@ function changeGrafico(T) {
             dataLine.data.datasets[1].data = preencherUmidadeEChuvaFaltantes(DadosDeHoje.datas, DadosDeHoje.chuvas)
             break;
         case '2':
+            dataLine.data.labels = gerarTodasOsDias(DadosDoMes.UltimoMes, DadosDoMes.UltimoAno)
+            dataLine.data.datasets[0].data = preencherUmidadeEChuvaFaltantesDia(DadosDoMes.datas, DadosDoMes.umidades)
+            dataLine.data.datasets[1].data = preencherUmidadeEChuvaFaltantesDia(DadosDoMes.datas, DadosDoMes.chuvas)
+            break;
+        case '3':
             dataLine.data.labels = preencherMesesFaltantes(DadosDoMes.datas)
             dataLine.data.datasets[0].data = preencherUmidadeEChuvaFaltantesMes(DadosDoMes.datas, DadosDoMes.umidades)
             dataLine.data.datasets[1].data = preencherUmidadeEChuvaFaltantesMes(DadosDoMes.datas, DadosDoMes.chuvas)
