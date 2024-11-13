@@ -29,7 +29,6 @@
 </head>
 
 <body>
-
     <nav class="position-fixed navbar navdecima navbar-expand-lg w-100 bg-opacity-100 bg-success" style="min-height: 70px;" data-bs-theme="dark">
         <div class="container-fluid">
             <a class="navbar-brand fs-6 text-white" style="font-family: 'fonte';" href="https://bumbershoot.com.br/">Robo Fazendeiro</a>
@@ -91,18 +90,16 @@
     <main class="" style="padding-top: 65px;">
         <div id="Dashbord" class="contentMain">
             <div class="dashbord-header bg-body-secondary d-flex flex-wrap">
+            
                 <div class="col-12 col-md-6 d-flex align-items-center justify-content-center">
                     <div class="border-2 border-black border h-75 rounded-4 text-black p-3" style="width: 95%;">
-                        <h2 class="font-monospace m-0">Umidade:<span class="text-bg-info">2%</span></h2>
-                        <p class="font-monospace fs-5 fw-light">ultima atualiçao: <span class="text-bg-success">hoje
-                                07:02</span></p>
+                        <h2 class="font-monospace m-0">Umidade:<span id="Umidade" class="text-bg-info">**%</span></h2>
+                        <p class="font-monospace fs-5 fw-light">ultima atualiçao: <span id="ultimaHora" class="text-bg-success">**:**</span></p>
                     </div>
                 </div>
                 <div class="col-12 col-md-6 d-flex align-items-center justify-content-center">
                     <div class="border-2 border-black border h-75 rounded-4 text-black p-3" style="width: 95%;">
-                        <h2 class="font-monospace m-0">Chuvas hoje:<span class="text-bg-info">1h:32m</span></h2>
-                        <p class="font-monospace fs-5 fw-light">ultima atualiçao: <span class="text-bg-success">hoje
-                                07:02</span></p>
+                        <h2 class="font-monospace m-0">Chuvas hoje:<span id="ultimaChuva" class="text-bg-info">****</span></h2>
                     </div>
                 </div>
             </div>
@@ -124,6 +121,9 @@
                     <div class="d-flex justify-content-center mb-2" id="UltimosLançamentosTFoot"></div>
                 </div>
                 <div class="container col-8" style="flex-basis: 700px;">
+                    <button class="Ligar" id="BotaoAlternaLigar" onclick="ligado()">
+                        <h1>LIGAR</h1>
+                    </button>
                     <h4 class="text-center"> Grafico</h4>
                     <select class="form-select" onchange="changeGrafico(this.value)" aria-label="Default select example">
                         <option value="1" selected>Diario</option>

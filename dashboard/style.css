@@ -116,3 +116,12 @@ main {
 .dashbord-header {
     min-height: 120px;
 }
+.Ligar{
+    background-color: green;
+    padding: 10px 10px;
+    box-shadow: 0px 0 2px rgb(0, 0, 0);
+    width: 20%;
+    position: absolute;
+    right: 215px;
+    bottom: 1px;
+}

@@ -18,7 +18,47 @@ function AtualizaData() {
     return data;
 }
 
-let dados = AtualizaData();
+var dados = AtualizaData();
+var ligadoo;
+
+if(parseFloat(dados.DadosGerais[0].Ligado) == 1){
+    document.getElementById("BotaoAlternaLigar").style.backgroundColor = "green";
+    ligadoo = 1
+        }else{
+    document.getElementById("BotaoAlternaLigar").style.backgroundColor = "red";
+    ligadoo = 0
+        }
+
+        var manda
+
+function ligado(){
+    
+if(ligadoo == 1){
+     manda = 0;
+}
+if(ligadoo == 0){
+     manda = 1;
+}
+
+$.ajax({
+    url: 'http://farmbotapi.elementfx.com/POSTDATA.php',
+    method: 'POST',
+    data: {DadosLigado: manda},
+    async: false
+});
+
+dados = AtualizaData()
+console.log(dados);
+
+if(dados.DadosGerais[0].Ligado == 1){
+    document.getElementById("BotaoAlternaLigar").style.backgroundColor = "green";
+    ligadoo = 1
+        }else{
+    document.getElementById("BotaoAlternaLigar").style.backgroundColor = "red";
+    ligadoo = 0
+        }
+        console.log(ligadoo);
+}
 
 /*
 // Percorre o array 'dados_segundos' e extrai os valores
@@ -464,3 +504,12 @@ function changeGrafico(T) {
     myChart.data.labels = dataLine.data.labels;
     myChart.update()
 }
+ setInterval(function(){
+    dados = AtualizaData();
+    let cacheLest = dados.dados_segundos[dados.dados_segundos.length - 1]
+    $('#ultimaHora').text(cacheLest.Data)
+    $('#Umidade').text(cacheLest.Umidade+"%")
+    $('#ultimaChuva').text(cacheLest.Chuva)
+
+    TabelaUltimosLançamentos()
+ },5000)
